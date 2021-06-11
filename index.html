@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html ng-app="hizliOgun" ng-controller="Controller" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hızlı Öğün</title>
+
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+    <div id="pageTransparent"></div>
+    <div class="container py-5">
+        <div class="row justify-content-end">
+            <div class="col-md-7">
+                <div class="text-center mb-4">
+                    <img src="./assets/imgs/logo_light.png" height="150" alt="Logo">
+                </div>
+
+                <div class="card rounded shadow">
+                    <div class="card-body">
+                        <div class="text-center px-5">                            
+                            <h2>Yeme planınızı oluşturalım</h2>
+                            <p class="mt-4 mb-3">Hızlı öğün amaçlarınıza ve özelliklerinize göre size bir yeme planı oluşturur, bu öğünlerden hoşunuza gitmeyenleri yenileyip farklı besinlerle değiştirebilir veya bütün planı yenileyerek yeniden oluşturabilirsiniz.</p>
+                            <h5 class="mt-4">Hazır mısınız? Birkaç bilgi almakla başlayalım.</h5>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-lg-6 col-sm-12">                                
+                                <div class="card shadow-sm mt-5 mb-3">
+                                    <div class="card-body">
+                                        <form ng-submit="calculateMeals()">                                            
+                                            <div class="row align-items-center mb-3">
+                                                <div class="col-5">
+                                                    <select id="meals" class="form-select" ng-model="mealsCalculator.meals" required>
+                                                        <option value="">Seçiniz</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
+                                                        <option value="4">4</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-7">
+                                                    <label for="meals">öğünde</label>
+                                                </div>
+                                            </div>  
+                                            <div class="row align-items-center mb-3">
+                                                <div class="col-5">
+                                                    <div class="input-group">
+                                                        <input type="number" id="calories" class="form-control" step="0.01" min="0" ng-model="mealsCalculator.calories" required>
+                                                        <span class="input-group-text px-1">kal</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-7">
+                                                    <label for="calories">yemek istiyorum.</label><br>
+                                                    <small class="text-info" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#calCalculatorModal"><i class="uil uil-question-circle"></i> Emin değilim</small>
+                                                </div>
+                                            </div>
+                                            <div class="row align-items-center">
+                                                <div class="col-5 d-flex justify-content-end">
+                                                    <button type="submit" class="btn btn-primary">Hesapla</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="suggestions" class="mt-5" ng-show="meals != null && meals.list.length > 0">
+                    <div class="mb-4 d-flex align-items-center justify-content-between">
+                        <h3 class="mb-0">Bugünün Menüsü</h3>
+                        <button type="button" class="btn btn-link p-0 text-secondary text-decoration-none fs-5" ng-click="calculateMeals()"><i class="uil uil-sync"></i> Yeniden Oluştur</button>
+                    </div>
+
+                    <div class="card bg-transparent shadow">
+                        <div class="card-body py-2">
+                            {{meals.calTotal}} Kalori için sonuçlar
+                        </div>
+                    </div>
+
+                    <div class="meals">
+                        <div class="card shadow mt-3" ng-repeat="meal in meals.list">
+                            <div class="card-header d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h6 class="mb-0">{{meal.title}}</h6>
+                                    <small class="mb-0">{{meal.calTotal}} Kalori</small>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-start flex-column" ng-repeat="food in meal.foods">
+                                        <div class="w-100 d-flex justify-content-between align-items-start">
+                                            <div class="me-auto" data-valid-calory="{{food.validCalory}}" data-valid-calory-threshold="{{food.validCaloryThreshold}}">
+                                                <div class="fw-bold">{{food.title}}</div>
+                                            </div>
+                                            <span class="badge bg-primary rounded-pill">{{food.calory}} cal / pors.</span>
+                                        </div>
+                                        <div class="w-100 mt-2 d-flex justify-content-between align-items-start">
+                                            <div class="me-auto" data-valid-calory="{{food.validCalory}}" data-valid-calory-threshold="{{food.validCaloryThreshold}}">
+                                                <div class="mt-2">
+                                                    <input type="number" class="form-control form-control-sm py-0 not-arrowed d-inline me-2" ng-model="food.serv" ng-change="calculateTotalCal()"> porsiyon
+                                                </div>
+                                            </div>
+                                            <button class="btn p-0 btn-link text-black-50 fs-3" ng-click="repickFoodFromJSON(food, meal.type)"><i class="uil uil-sync"></i></button>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="calCalculatorModal" tabindex="-1" aria-labelledby="calCalculatorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="calCalculatorModalLabel">Tahmini Kalori Hesabı</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2">Bu kalori hesaplayıcı "Mifflin - St Jeor" denklemini baz almıştır. Bu denklem Bazal Metabolizma Oranınızı (BMO)  bulmanıza yardımcı olur. BMO vücudunuzun temel yaşam ihtiyaçlarını karşılamak için ihtiyaç duyduğu enerji miktarıdır, kadın ve erkeğe göre değişiklik gösterir.</p>
+                    <p class="mb-3">BMO değeriniz akabinde haftalık aktivitenize göre katsayılar ile çarpılır.</p>
+                    <form class="py-3" ng-submit="calculateCal()">
+                        <div class="row align-items-center mb-3">
+                            <div class="col-4">
+                                <label for="calSex">Cinsiyet</label>
+                            </div>
+                            <div class="col-8">
+                                <div class="btn-group w-100">
+                                    <input type="radio" class="btn-check" name="calSex" id="calSexMale" autocomplete="off" ng-model="calCalculator.sex" ng-value="1" required>
+                                    <label class="btn btn-outline-primary" for="calSexMale">Erkek</label>
+                                    <input type="radio" class="btn-check" name="calSex" id="calSexFemale" autocomplete="off" ng-model="calCalculator.sex" ng-value="0" required>
+                                    <label class="btn btn-outline-primary" for="calSexFemale">Kadın</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row align-items-center mb-3">
+                            <div class="col-4">
+                                <label for="calHeight">Boy</label>
+                            </div>
+                            <div class="col-4">
+                                <div class="input-group">
+                                    <input type="number" id="calHeight" class="form-control" ng-model="calCalculator.height" required>
+                                    <span class="input-group-text px-1">cm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row align-items-center mb-3">
+                            <div class="col-4">
+                                <label for="calWeight">Ağırlık</label>
+                            </div>
+                            <div class="col-4">
+                                <div class="input-group">
+                                    <input type="number" id="calWeight" class="form-control" ng-model="calCalculator.weight" required>
+                                    <span class="input-group-text px-1">kg</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row align-items-center mb-3">
+                            <div class="col-4">
+                                <label for="calAge">Yaş</label>
+                            </div>
+                            <div class="col-4">
+                                <div class="input-group">
+                                    <input type="number" id="calAge" class="form-control" ng-model="calCalculator.age" required>
+                                    <span class="input-group-text px-1">yıl</span>
+                                </div>
+                            </div>
+                        </div>                        
+                        <div class="row align-items-center mb-3">
+                            <div class="col-4">
+                                <label class="d-flex align-items-center justify-content-between" for="calActivity">
+                                    <span>Aktivite</span>
+                                    <button id="calActivityInfo" type="button" class="btn btn-link text-info p-0 fs-4" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-html="true" title="<b>İnaktif:</b><br>Az veya hiç egzersiz<br><br><b>Biraz aktif:</b><br>Hafif egzersiz veya spor 1-2 gün/hafta<br><br><b>Orta aktif:</b><br>Orta derece egzersiz veya spor 2-3 gün/hafta<br><br><b>Çok aktif:</b><br>Zor egzersiz veya spor 4-5 gün/hafta<br><br><b>Ekstra aktif:</b><br>Çok zor egzersiz, fiziksel iş veya spor 6-7 gün/hafta"><i class="uil uil-question-circle"></i></button>
+                                </label>
+                            </div>
+                            <div class="col-8">
+                                <select id="calActivity" class="form-select" ng-model="calCalculator.activity" required>
+                                    <option value="">Seçiniz</option>
+                                    <option value="1.2">İnaktif</option>
+                                    <option value="1.4">Biraz aktif</option>
+                                    <option value="1.6">Orta aktif</option>
+                                    <option value="1.75">Çok aktif</option>
+                                    <option value="2.0">Ekstra aktif</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row align-items-center">
+                            <div class="col-4 offset-4">
+                                <button type="submit" class="btn btn-primary">Hesapla</button>
+                            </div>
+                        </div> 
+                    </form>
+                    <div ng-show="calPerDay != null" class="mt-3 text-center">
+                        <h3>Tavsiye Edilen Günlük Kalori İhtiyacı</h3>
+                        <h1>{{calPerDay}}</h1>
+                        <button class="btn btn-secondary mt-3" ng-click="setCalPerDayToMeals()">Uygula</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./assets/js/index.js"></script>
+
+    <script src="./assets/js/angular/angular.min.js"></script>
+    <script src="./assets/js/angular/app.js"></script>
+</body>
+</html>

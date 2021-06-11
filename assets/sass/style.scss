@@ -1,0 +1,31 @@
+body {
+    background-image: url("../imgs/background.png");
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: left center;
+}
+
+#pageTransparent {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(#ffffff, .5);
+    z-index: 3;
+}
+
+.container {
+    z-index: 10;
+    position: relative;
+}
+
+input[type=number].not-arrowed::-webkit-outer-spin-button,
+input[type=number].not-arrowed::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.meals .list-group-item input[type=number] {
+    width: 40px;
+}

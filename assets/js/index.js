@@ -1,0 +1,1 @@
+new bootstrap.Tooltip(document.getElementById("calActivityInfo"));
